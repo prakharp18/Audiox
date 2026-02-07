@@ -1,116 +1,4 @@
-"use client";
-
-import { useState, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
-import { PlayIcon, PauseIcon, Download02Icon, Share01Icon } from "hugeicons-react";
-import { cn } from "@/lib/utils";
-
-interface VoicePlayerProps {
-  url: string;
-  duration: number;
-  timestamp: string;
-}
-
-export const VoicePlayer = ({ url, duration, timestamp }: VoicePlayerProps) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  const togglePlay = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
-
-  const onTimeUpdate = () => {
-    if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
-    }
-  };
-
-  const onEnded = () => {
-    setIsPlaying(false);
-    setCurrentTime(0);
-  };
-
-  const formatTime = (seconds: number) => {
-    const min = Math.floor(seconds / 60);
-    const sec = Math.floor(seconds % 60);
-    return `${min}:${sec.toString().padStart(2, "0")}`;
-  };
-
-  return (
-    <div className="group relative p-5 rounded-3xl bg-zinc-900/40 border border-zinc-800/60 hover:border-primary/30 transition-all duration-500 overflow-hidden">
-
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      
-      <div className="relative z-10 flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-           <div className="flex items-center gap-3">
-                <button 
-                  onClick={togglePlay}
-                  className="flex items-center justify-center w-12 h-12 rounded-full bg-white text-black hover:bg-zinc-200 transition-all active:scale-95 shadow-lg"
-                >
-                    {isPlaying ? (
-                        <PauseIcon className="w-5 h-5 fill-current" />
-                    ) : (
-                        <PlayIcon className="w-5 h-5 fill-current ml-0.5" />
-                    )}
-                </button>
-                <div className="flex flex-col">
-                    <span className="text-sm font-bold text-white tracking-tight">Voice Anon</span>
-                    <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-widest">{timestamp}</span>
-                </div>
-           </div>
-           
-           <div className="flex items-center gap-2">
-                <button className="p-2 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all">
-                    <Download02Icon className="w-4 h-4" />
-                </button>
-                <button className="p-2 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all">
-                    <Share01Icon className="w-4 h-4" />
-                </button>
-           </div>
-        </div>
-
-
-        <div className="flex items-end gap-[3px] h-10 w-full px-1">
-            {[...Array(30)].map((_, i) => {
-                const height = 20 + Math.random() * 60;
-                const progress = (currentTime / duration) * 30;
-                const isActive = i <= progress;
-
-                return (
-                    <div 
-                        key={i} 
-                        className={cn(
-                            "flex-1 rounded-full transition-all duration-300",
-                            isActive ? "bg-primary" : "bg-zinc-800"
-                        )}
-                        style={{ height: `${height}%` }}
-                    />
-                );
-            })}
-        </div>
-
-        <div className="flex justify-between items-center text-[10px] font-mono text-zinc-500 uppercase tracking-widest">
-            <span>{formatTime(currentTime)}</span>
-            <span>{formatTime(duration)}</span>
-        </div>
-      </div>
-
-      <audio 
-        ref={audioRef}
-        src={url}
-        onTimeUpdate={onTimeUpdate}
-        onEnded={onEnded}
-        className="hidden"
-      />
-    </div>
-  );
-};
+"use client";import { useState, useEffect } from "react";import { motion } from "framer-motion";import useSound from "use-sound";import { PlayIcon, PauseIcon, Download02Icon, Delete02Icon } from "hugeicons-react";import { cn } from "@/lib/utils";interface VoicePlayerProps {  url: string;  duration: number;  timestamp: string;  onDelete?: () => void;}export const VoicePlayer = ({ url, duration, timestamp, onDelete }: VoicePlayerProps) => {  const bars = 25; 
+  const getRandomHeights = () => {    return Array.from({ length: bars }, () => Math.random() * 0.5 + 0.2);  };  const [heights, setHeights] = useState(Array(bars).fill(0.1));  const [isPlaying, setIsPlaying] = useState(false);  const [play, { pause }] = useSound(url, {    onplay: () => setIsPlaying(true),    onend: () => setIsPlaying(false),    onpause: () => setIsPlaying(false),  });  useEffect(() => {    let waveformIntervalId: NodeJS.Timeout;    if (isPlaying) {      waveformIntervalId = setInterval(() => {        setHeights(getRandomHeights());      }, 80);    } else {      setHeights(Array(bars).fill(0.15)); 
+    }    return () => {      if (waveformIntervalId) clearInterval(waveformIntervalId);    };  }, [isPlaying]);  const togglePlay = () => {    if (isPlaying) {      pause();      setIsPlaying(false);    } else {      play();      setIsPlaying(true);    }  };  const handleDownload = () => {    const link = document.createElement("a");    link.href = url;    link.download = `audiox-message-${timestamp.replace(/[: ]/g, "-")}.webm`;    document.body.appendChild(link);    link.click();    document.body.removeChild(link);  };  return (    <div className="group relative w-full bg-zinc-900/40 border border-zinc-800/60 rounded-2xl p-4 hover:border-zinc-700/50 transition-all duration-300">      <div className="flex items-center gap-4">        {}        <button           onClick={togglePlay}          className={cn(            "flex items-center justify-center w-12 h-12 rounded-full transition-all active:scale-95 shadow-lg",            isPlaying ? "bg-white text-black" : "bg-zinc-800 text-white hover:bg-zinc-700"          )}        >          {isPlaying ? (            <PauseIcon className="w-5 h-5 fill-current" />          ) : (             <PlayIcon className="w-5 h-5 fill-current ml-0.5" />          )}        </button>        {}        <div className="flex-1 flex flex-col justify-center gap-1.5 min-w-0">            {}            <div className="flex items-center h-8 gap-[2px]">               {heights.map((height, index) => (                  <motion.div                    key={index}                    className="flex-1 rounded-full min-w-[3px]"                    initial={{ height: "4px" }}                    animate={{                      height: `${Math.max(10, height * 100)}%`,                      backgroundColor: isPlaying ? "#10b981" : "#3f3f46" 
+                    }}                    transition={{                      type: "spring",                      stiffness: 300,                      damping: 15,                    }}                  />                ))}            </div>            {}            <div className="flex items-center justify-between text-[10px] text-zinc-500 font-mono uppercase tracking-wider">               <span>{timestamp}</span>               <div className="flex items-center gap-3">                  <span>Voice Message</span>                  <button                     onClick={handleDownload}                    className="hover:text-white transition-colors"                    title="Download"                  >                    <Download02Icon className="w-3 h-3" />                  </button>                  {onDelete && (                    <button                         onClick={onDelete}                        className="hover:text-red-500 transition-colors"                        title="Delete"                    >                        <Delete02Icon className="w-3 h-3" />                    </button>                  )}               </div>            </div>        </div>      </div>    </div>  );};

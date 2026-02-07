@@ -1,10 +1,7 @@
 "use client";
-
 import Link from "next/link";
 import React from "react";
-
 import { cn } from "@/lib/utils";
-
 const Skiper40 = () => {
   return (
     <section className="h-full snap-y snap-mandatory overflow-y-scroll">
@@ -18,9 +15,7 @@ const Skiper40 = () => {
     </section>
   );
 };
-
 export { Link000, Link001, Link002, Link003, Link004, Link005, Skiper40 };
-
 const Link000 = ({
   children,
   href,
@@ -165,7 +160,6 @@ const Link003 = ({
     </a>
   );
 };
-
 const Link004 = ({
   children,
   href,
@@ -246,21 +240,3 @@ const Link005 = ({
     </a>
   );
 };
-
-/**
- * Skiper 40 Animated Link — React
- * Inspired by and adapted from https://cursor.com/?from=home
- * We respect the original creators. This is an inspired rebuild with our own taste and does not claim any ownership.
- * These animations aren’t associated with the cursor.com . They’re independent recreations meant to study interaction design
- *
- * License & Usage:
- * - Free to use and modify in both personal and commercial projects.
- * - Attribution to Skiper UI is required when using the free version.
- * - No attribution required with Skiper UI Pro.
- *
- * Feedback and contributions are welcome.
- *
- * Author: @gurvinder-singh02
- * Website: https://gxuri.in
- * Twitter: https://x.com/Gur__vi
- */

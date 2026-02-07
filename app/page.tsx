@@ -1,21 +1,17 @@
 "use client";
-
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight01Icon, ZapIcon, Analytics01Icon, Shield01Icon } from "hugeicons-react";
 import { Skiper39 } from "@/components/ui/skiper-ui/skiper39";
 import { Preloader } from "@/components/ui/preloader";
+import { LandingSearch } from "@/components/landing-search"; 
 import { useState } from "react";
-
 export default function Home() {
   const [isLogoHovered, setIsLogoHovered] = useState(false);
-
   return (
     <main className="relative min-h-screen w-full bg-[#f9f7f2] text-zinc-900 overflow-hidden selection:bg-primary selection:text-white">
       <Preloader />
       <Skiper39 />
-
-
       <div 
         className="absolute top-6 right-6 z-50 flex flex-col items-end"
         onMouseEnter={() => setIsLogoHovered(true)}
@@ -32,8 +28,7 @@ export default function Home() {
               </div>
           </div>
         </Link>
-
-        {/* Animated Dropdown (Maximizing Window Effect) */}
+        {}
         <AnimatePresence>
             {isLogoHovered && (
                 <motion.div
@@ -43,7 +38,7 @@ export default function Home() {
                     transition={{ type: "spring", damping: 20, stiffness: 300, mass: 0.5 }}
                     className="mt-3 w-80 p-0 rounded-3xl bg-white/95 border border-zinc-200 backdrop-blur-xl shadow-2xl origin-top-right overflow-hidden group"
                 >
-                    {/* Header Image Section */}
+                    {}
                     <div className="relative h-32 w-full overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent z-10" />
                         <img 
@@ -56,13 +51,11 @@ export default function Home() {
                             <p className="text-zinc-200 text-[10px] uppercase tracking-wider">Secure & Anonymous</p>
                         </div>
                     </div>
-
-                    {/* Summary Content */}
+                    {}
                     <div className="p-5 pt-2 flex flex-col gap-4">
                         <p className="text-xs text-zinc-600 leading-relaxed">
                             <span className="text-zinc-900 font-bold">VOX</span> is the sound of anonymity. Vox is a privacy-focused, real-time anonymous messaging application.
                         </p>
-
                         <div className="pt-2 border-t border-zinc-100">
                              <div className="flex items-center justify-between text-[10px]">
                                  <span className="text-zinc-500 uppercase tracking-widest">System Status</span>
@@ -74,7 +67,6 @@ export default function Home() {
             )}
         </AnimatePresence>
       </div>
-
       <div className="relative z-10 flex flex-col items-center justify-start min-h-screen p-4 pt-32 text-center md:pt-40">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -91,18 +83,15 @@ export default function Home() {
               V 2.0 &bull; SYSTEM ONLINE
             </span>
           </div>
-
           <h1 className="text-5xl md:text-7xl font-heading font-bold tracking-tight text-zinc-900 leading-[0.9]">
             Share what you <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-900 via-zinc-600 to-zinc-400">
               can't say freely.
             </span>
           </h1>
-
           <p className="text-zinc-600 text-sm md:text-base max-w-md leading-relaxed font-medium">
             The anonymous voice messaging platform. Encrypted, untraceable, and designed for radical honesty.
           </p>
-
           <div className="flex flex-col sm:flex-row items-center gap-4 mt-4 w-full sm:w-auto">
             <Link href="/login" className="w-full sm:w-auto">
                 <button className="group relative w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-zinc-900 text-white rounded-full font-medium transition-all hover:scale-105 active:scale-95 shadow-xl hover:shadow-2xl">
@@ -110,19 +99,13 @@ export default function Home() {
                     <ArrowRight01Icon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
             </Link>
-            
-            <Link href="/search" className="w-full sm:w-auto">
-                <button className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-white border border-zinc-200 text-zinc-900 rounded-full font-medium transition-all hover:bg-zinc-50 shadow-sm hover:shadow-md">
-                    <span>Find a User</span>
-                </button>
-            </Link>
+            <LandingSearch />
           </div>
         </motion.div>
       </div>
-
       <div className="absolute bottom-6 w-full text-center z-10">
         <p className="text-[10px] text-zinc-400 uppercase tracking-widest">
-            VOX &copy; 2026 &bull; POWERED BY AUDIOX
+            AUDIOX &copy; 2026 &bull; POWERED BY VOX
         </p>
       </div>
     </main>

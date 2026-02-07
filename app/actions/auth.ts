@@ -1,0 +1,2 @@
+"use server"import { signIn } from "@/auth"import { cookies } from "next/headers"export async function continueWithGoogle(username?: string) {  if (username) {   const cookieStore = await cookies()    cookieStore.set("audiox-new-username", username, {       secure: process.env.NODE_ENV === "production",      httpOnly: true,      maxAge: 60 * 10, 
+      sameSite: "lax"    })  }  await signIn("google", { redirectTo: "/dashboard" })}
