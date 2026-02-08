@@ -111,3 +111,16 @@ export async function sendMessage(formData: FormData) {
 
   return { success: true };
 }
+
+export async function checkSystemStatus() {
+  try {
+    const publicSupabase = createClient(supabaseUrl, supabaseServiceKey);
+    const { error } = await publicSupabase.from("users").select("id").limit(1);
+    
+    if (error) throw error;
+    return { status: "online", latency: "normal" };
+  } catch (error) {
+    console.error("System check failed:", error);
+    return { status: "offline", latency: "high" };
+  }
+}

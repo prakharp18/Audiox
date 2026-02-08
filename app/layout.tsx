@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import { SmoothScroller } from "@/components/smooth-scroller";
 const outfit = Outfit({
   variable: "--font-heading",
   subsets: ["latin"],
@@ -26,8 +27,10 @@ export default function RootLayout({
         className={`font-sans antialiased bg-background text-foreground`}
         suppressHydrationWarning
       >
-        {children}
-        <Toaster />
+        <SmoothScroller>
+          {children}
+          <Toaster />
+        </SmoothScroller>
       </body>
     </html>
   );

@@ -94,9 +94,9 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row items-center gap-4 mt-4 w-full sm:w-auto">
             <Link href="/login" className="w-full sm:w-auto">
-                <button className="group relative w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-zinc-900 text-white rounded-full font-medium transition-all hover:scale-105 active:scale-95 shadow-xl hover:shadow-2xl">
+                <button className="group relative w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-0 h-16 bg-zinc-950 text-white rounded-full font-medium transition-all hover:bg-zinc-900 hover:scale-105 active:scale-95 shadow-xl hover:shadow-2xl text-base whitespace-nowrap">
                     <span>Create Your Board</span>
-                    <ArrowRight01Icon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight01Icon className="w-4 h-4 text-zinc-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
                 </button>
             </Link>
             <LandingSearch />
