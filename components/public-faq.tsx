@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import * as Accordion from "@radix-ui/react-accordion";
 import { ArrowDown01Icon } from "hugeicons-react";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,14 @@ const FAQItem = ({ value, trigger, content }: { value: string; trigger: string; 
 );
 
 export const PublicFAQ = () => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) return null;
+
   return (
     <div className="w-full">
       <Accordion.Root type="single" collapsible className="w-full">

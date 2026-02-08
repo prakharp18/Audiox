@@ -22,6 +22,7 @@ import {
 } from "@/app/actions/dashboard";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Modal } from "@/components/ui/modal";
 
 interface Message {
   id: string;
@@ -51,6 +52,8 @@ export function DashboardClient({
   const [copied, setCopied] = useState(false);
   const [currentTime, setCurrentTime] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
+  const [isClearFeedModalOpen, setIsClearFeedModalOpen] = useState(false);
 
   useEffect(() => {
     setIsOnline(acceptMessages);
@@ -122,18 +125,18 @@ export function DashboardClient({
   };
 
   const handleDeleteAccount = async () => {
-    if (
-      confirm(
-        "Are you sure you want to delete your account? This action cannot be undone."
-      )
-    ) {
-      try {
-        await deleteAccount();
-        await signOut({ callbackUrl: "/" });
-        toast.success("Account deleted");
-      } catch (error) {
-        toast.error("Failed to delete account");
-      }
+    setIsDeleteAccountModalOpen(true);
+  };
+
+  const confirmDeleteAccount = async () => {
+    try {
+      await deleteAccount();
+      await signOut({ callbackUrl: "/" });
+      toast.success("Account deleted");
+    } catch (error) {
+      toast.error("Failed to delete account");
+    } finally {
+      setIsDeleteAccountModalOpen(false);
     }
   };
 
@@ -150,20 +153,20 @@ export function DashboardClient({
 
   const handleDeleteAll = async () => {
     if (messages.length === 0) return;
-    if (
-      confirm(
-        "Are you sure you want to delete ALL messages? This cannot be undone."
-      )
-    ) {
-      const oldMessages = [...messages];
-      setMessages([]);
-      toast.success("All messages deleted");
-      try {
-        await deleteAllMessages();
-      } catch (error) {
-        toast.error("Failed to delete messages from server");
-        setMessages(oldMessages);
-      }
+    setIsClearFeedModalOpen(true);
+  };
+
+  const confirmDeleteAll = async () => {
+    const oldMessages = [...messages];
+    setMessages([]);
+    toast.success("All messages deleted");
+    setIsClearFeedModalOpen(false);
+    
+    try {
+      await deleteAllMessages();
+    } catch (error) {
+      toast.error("Failed to delete messages from server");
+      setMessages(oldMessages);
     }
   };
 
@@ -178,6 +181,7 @@ export function DashboardClient({
   ).length;
 
   return (
+    <>
     <main className="relative min-h-screen w-full bg-[#0a0a0a] text-white overflow-hidden font-sans">
       <Preloader />
       <div className="absolute top-4 right-4 z-50 flex items-center gap-3 text-xs text-zinc-500">
@@ -368,5 +372,50 @@ export function DashboardClient({
         </div>
       </div>
     </main>
+    <Modal
+        isOpen={isDeleteAccountModalOpen}
+        onClose={() => setIsDeleteAccountModalOpen(false)}
+        title="Delete Account?"
+        description="This action cannot be undone. All your data and messages will be permanently removed."
+        footer={
+          <>
+            <button
+              onClick={() => setIsDeleteAccountModalOpen(false)}
+              className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmDeleteAccount}
+              className="px-4 py-2 text-sm font-medium bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors shadow-lg shadow-red-500/20"
+            >
+              Delete Account
+            </button>
+          </>
+        }
+      />
+      <Modal
+        isOpen={isClearFeedModalOpen}
+        onClose={() => setIsClearFeedModalOpen(false)}
+        title="Clear Feed?"
+        description="Are you sure you want to delete ALL messages? This cannot be undone."
+        footer={
+          <>
+            <button
+              onClick={() => setIsClearFeedModalOpen(false)}
+              className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmDeleteAll}
+              className="px-4 py-2 text-sm font-medium bg-zinc-100 hover:bg-white text-black rounded-lg transition-colors font-bold"
+            >
+              Clear Everything
+            </button>
+          </>
+        }
+      />
+    </>
   );
 }

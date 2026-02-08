@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic01Icon, StopIcon, Delete02Icon, SentIcon } from "hugeicons-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import { sendMessage } from "@/app/actions/public";
 
 interface VoiceRecorderProps {
@@ -46,9 +47,18 @@ export const VoiceRecorder = ({ recipientId, onSent }: VoiceRecorderProps) => {
         setRecordingTime((prev) => prev + 1);
       }, 1000);
     } catch (err) {
-      // alert("Could not access microphone");
+      toast.error("Could not access microphone");
     }
   };
+
+  const MAX_DURATION = 45;
+
+  useEffect(() => {
+    if (isRecording && recordingTime >= MAX_DURATION) {
+      stopRecording();
+      toast.info(`Time limit reached (${MAX_DURATION}s)`);
+    }
+  }, [recordingTime, isRecording]);
 
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
@@ -84,7 +94,9 @@ export const VoiceRecorder = ({ recipientId, onSent }: VoiceRecorderProps) => {
 
         if (!result.success) {
           if (result.error === "LIMIT_REACHED") {
-            alert("This user has reached their daily message limit.");
+            toast.error("Daily limit reached", {
+                description: "This user cannot receive more messages today."
+            });
           } else {
             throw new Error(result.error);
           }
@@ -99,7 +111,7 @@ export const VoiceRecorder = ({ recipientId, onSent }: VoiceRecorderProps) => {
         audioChunksRef.current = [];
         setIsSending(false);
     } catch (error) {
-        alert("Failed to send message");
+        toast.error("Failed to send message");
         setIsSending(false);
     }
   };
