@@ -93,6 +93,11 @@ export const VoiceRecorder = ({ recipientId, onSent }: VoiceRecorderProps) => {
         }
 
         onSent();
+        // Reset internal state
+        setAudioBlob(null);
+        setRecordingTime(0);
+        audioChunksRef.current = [];
+        setIsSending(false);
     } catch (error) {
         alert("Failed to send message");
         setIsSending(false);

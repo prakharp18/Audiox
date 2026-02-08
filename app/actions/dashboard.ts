@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { SupabaseAdapter } from "@auth/supabase-adapter";
 import { createClient } from "@supabase/supabase-js";
+import { revalidatePath } from "next/cache";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!;
@@ -18,30 +19,41 @@ export async function getUserStats() {
   }
   const { data: user, error } = await supabase
     .from("users")
-    .select("username, is_accepting_messages, message_count, daily_messages_count")
+    .select("username, is_accepting_messages, message_count, daily_messages_count, last_message_date")
     .eq("id", session.user.id)
     .single();
 
   if (error) {
     if (error.code === 'PGRST100' || error.message?.includes("column")) {
-      // Handle potential errors or keep empty as per original intent
+      // Handle potential errors
     }
     return null;
   }
+  
+  if (user.last_message_date) {
+    const lastDate = new Date(user.last_message_date).toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0];
+    if (lastDate !== today) {
+      user.daily_messages_count = 0;
+    }
+  }
+  
   return user;
 }
 
-export async function toggleAcceptMessages(currentState: boolean) {
+export async function toggleAcceptMessages(newState: boolean) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
   
   const { error } = await supabase
     .from("users")
-    .update({ is_accepting_messages: !currentState })
+    .update({ is_accepting_messages: newState })
     .eq("id", session.user.id);
 
   if (error) throw new Error("Failed to update settings");
-  return !currentState;
+  
+  revalidatePath("/dashboard");
+  return newState;
 }
 
 export async function getMessages() {

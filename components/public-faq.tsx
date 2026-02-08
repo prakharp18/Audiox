@@ -46,15 +46,15 @@ export const PublicFAQ = () => {
           trigger="Is there a limit?" 
           content="Yes, to prevent spam, you can send 3 messages per user per day. Quality over quantity." 
         />
-        <FAQItem 
-          value="item-5" 
-          trigger="How is the audio quality?" 
-          content="We use high-fidelity WebM recording. For best results, speak clearly and avoid background noise." 
+        <FAQItem
+          value="item-5"
+          trigger="Want to send more anonymous messages?"
+          content="We currently allow only 3 messages per user per day. For unlimited anonymous messaging and enhanced privacy, switch to Vox."
         />
         <FAQItem 
           value="item-6" 
-          trigger="Can I report abuse?" 
-          content="Yes. If you receive a harmful message, you can delete it immediately. We are working on a reporting feature for severe cases." 
+          trigger="When does the daily limit reset?" 
+          content="The daily limit resets every day at 5:30 AM IST (Midnight UTC)." 
         />
       </Accordion.Root>
     </div>

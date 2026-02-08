@@ -1,1 +1,49 @@
-import { notFound } from "next/navigation";import { createClient } from "@supabase/supabase-js";import { PublicProfileClient } from "@/components/public-profile-client";const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;const supabaseServiceKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!;const supabase = createClient(supabaseUrl, supabaseServiceKey, {  db: { schema: "next_auth" }, });async function getUserByUsername(username: string) {  const { data: user, error } = await supabase    .from("users")    .select("id, username, is_accepting_messages, daily_messages_count, last_message_date")    .eq("username", username)     .single();  if (error || !user) return null;  return user;}export default async function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {  const { username } = await params;  const user = await getUserByUsername(username);  if (!user) {    notFound();  }  let limitReached = false;  if (user.last_message_date) {    const lastDate = new Date(user.last_message_date).toISOString().split('T')[0];    const today = new Date().toISOString().split('T')[0];    if (lastDate === today && (user.daily_messages_count || 0) >= 3) {      limitReached = true;    }  }  return (    <PublicProfileClient       username={user.username}       userId={user.id}      isAcceptingMessages={user.is_accepting_messages}      limitReached={limitReached}    />  );}
+import { notFound } from "next/navigation";
+import { createClient } from "@supabase/supabase-js";
+import { PublicProfileClient } from "@/components/public-profile-client";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!;
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+  db: { schema: "next_auth" },
+});
+
+async function getUserByUsername(username: string) {
+  const { data: user, error } = await supabase
+    .from("users")
+    .select("id, username, is_accepting_messages, daily_messages_count, last_message_date")
+    .eq("username", username)
+    .single();
+
+  if (error || !user) return null;
+  return user;
+}
+
+export default async function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
+  const { username } = await params;
+  const user = await getUserByUsername(username);
+
+  if (!user) {
+    notFound();
+  }
+
+  let limitReached = false;
+  if (user.last_message_date) {
+    const lastDate = new Date(user.last_message_date).toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0];
+    
+    if (lastDate === today && (user.daily_messages_count || 0) >= 3) {
+      limitReached = true;
+    }
+  }
+
+  return (
+    <PublicProfileClient 
+      username={user.username} 
+      userId={user.id}
+      isAcceptingMessages={user.is_accepting_messages}
+      limitReached={limitReached}
+    />
+  );
+}
