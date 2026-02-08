@@ -1,1 +1,103 @@
-import NextAuth from "next-auth"import Google from "next-auth/providers/google"import { SupabaseAdapter } from "@auth/supabase-adapter"import { createClient } from "@supabase/supabase-js"export const { handlers, auth, signIn, signOut } = NextAuth({  providers: [Google],  adapter: SupabaseAdapter({    url: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",    secret: process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY ?? "",  }),  pages: {    signIn: "/login",  },  callbacks: {    async session({ session, user }) {      if (session.user && user.id) {        session.user.username = (user as any).username;        session.user.id = user.id;      }      return session    },  },  events: {    async createUser({ user }) {      const { cookies } = await import("next/headers");      const cookieStore = await cookies();      const username = cookieStore.get("audiox-new-username")?.value;      if (username) {        const supabase = createClient(          process.env.NEXT_PUBLIC_SUPABASE_URL!,          process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!        );        await supabase          .from("users")          .update({ username, is_accepting_messages: true })          .eq("id", user.id);        cookieStore.delete("audiox-new-username");      }    },  },  debug: false,  cookies: {    sessionToken: {      name: `authjs.session-token`,      options: {        httpOnly: true,        sameSite: "lax",        path: "/",        secure: process.env.NODE_ENV === "production",      },    },    callbackUrl: {      name: `authjs.callback-url`,      options: {        sameSite: "lax",        path: "/",        secure: process.env.NODE_ENV === "production",      },    },    csrfToken: {      name: `authjs.csrf-token`,      options: {        httpOnly: true,        sameSite: "lax",        path: "/",        secure: process.env.NODE_ENV === "production",      },    },    pkceCodeVerifier: {      name: `authjs.pkce.code_verifier`,      options: {        httpOnly: true,        sameSite: "lax",        path: "/",        secure: process.env.NODE_ENV === "production",      },    },  },})
+import NextAuth from "next-auth"
+import Google from "next-auth/providers/google"
+import { SupabaseAdapter } from "@auth/supabase-adapter"
+import { createClient } from "@supabase/supabase-js"
+
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  providers: [Google],
+  adapter: SupabaseAdapter({
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
+    secret: process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY ?? "",
+  }),
+  pages: {
+    signIn: "/login",
+  },
+  session: {
+    strategy: "jwt",
+    maxAge: 24 * 60 * 60,
+  },
+  callbacks: {
+    async session({ session, token }) {
+      if (session.user && token.sub) {
+        session.user.id = token.sub;
+      }
+      return session
+    },
+    async jwt({ token, user, trigger, session }) {
+        if (user) {
+            token.sub = user.id;
+            token.picture = user.image;
+             const supabase = createClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!
+              );
+              const { data } = await supabase
+                .from("users")
+                .select("username")
+                .eq("id", user.id)
+                .single();
+              
+              if (data) {
+                  token.username = data.username;
+              }
+        }
+        return token;
+    }
+  },
+  events: {
+    async createUser({ user }) {
+      const { cookies } = await import("next/headers");
+      const cookieStore = await cookies();
+      const username = cookieStore.get("audiox-new-username")?.value;
+      if (username) {
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!
+        );
+        await supabase
+          .from("users")
+          .update({ username, is_accepting_messages: true })
+          .eq("id", user.id);
+        cookieStore.delete("audiox-new-username");
+      }
+    },
+  },
+  debug: false,
+  cookies: {
+    sessionToken: {
+      name: `authjs.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+    callbackUrl: {
+      name: `authjs.callback-url`,
+      options: {
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+    csrfToken: {
+      name: `authjs.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+    pkceCodeVerifier: {
+      name: `authjs.pkce.code_verifier`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+  },
+})
