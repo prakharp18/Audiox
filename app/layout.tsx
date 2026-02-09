@@ -3,6 +3,7 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { SmoothScroller } from "@/components/smooth-scroller";
+import { Analytics } from "@vercel/analytics/next";
 const outfit = Outfit({
   variable: "--font-heading",
   subsets: ["latin"],
@@ -35,6 +36,7 @@ export default function RootLayout({
           {children}
           <Toaster />
         </SmoothScroller>
+        <Analytics />
       </body>
     </html>
   );
