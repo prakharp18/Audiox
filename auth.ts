@@ -7,7 +7,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [Google],
   adapter: SupabaseAdapter({
     url: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-    secret: process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY ?? "",
+    secret: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
   }),
   pages: {
     signIn: "/login",
@@ -17,6 +17,50 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     maxAge: 24 * 60 * 60,
   },
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        try {
+          const { cookies } = await import("next/headers");
+          const cookieStore = await cookies();
+          const newUsername = cookieStore.get("audiox-new-username")?.value;
+
+          const supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!,
+            {
+              auth: {
+                autoRefreshToken: false,
+                persistSession: false,
+              },
+            }
+          );
+          
+          const { data: existingUser, error } = await supabaseAdmin
+              .from("users")
+              .select("id")
+              .eq("email", user.email)
+              .maybeSingle();
+
+          if (error) {
+              console.error("Auth check error:", error);
+              return false; // Fail safe
+          }
+
+          // 1. If user exists, allow login
+          if (existingUser) return true;
+
+          // 2. If new user, REQUIRE the username cookie
+          if (newUsername) return true; 
+
+          // 3. Allow all sign-ins
+          return true;
+        } catch (err) {
+            console.error("SignIn callback error:", err);
+            return true; // Allow sign-in even if check fails, adapter will handle uniqueness constraints if any
+        }
+      }
+      return true;
+    },
     async session({ session, token }) {
       if (session.user && token.sub) {
         session.user.id = token.sub;
@@ -27,17 +71,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (user) {
             token.sub = user.id;
             token.picture = user.image;
+        }
+
+        // Always try to refresh username from DB if we have a user ID (sub)
+        // This ensures that if the user updates their profile, the session reflects it on next access
+        if (token.sub) {
              const supabase = createClient(
                 process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!
+                process.env.SUPABASE_SERVICE_ROLE_KEY!
               );
               const { data } = await supabase
                 .from("users")
                 .select("username")
-                .eq("id", user.id)
+                .eq("id", token.sub)
                 .single();
               
-              if (data) {
+              if (data?.username) {
                   token.username = data.username;
               }
         }
@@ -49,55 +98,38 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const { cookies } = await import("next/headers");
       const cookieStore = await cookies();
       const username = cookieStore.get("audiox-new-username")?.value;
+      
+      console.log("CreateUser Event Triggered for:", user.id);
+
       if (username) {
-        const supabase = createClient(
+        const supabaseAdmin = createClient(
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!
+          process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          {
+            auth: {
+              autoRefreshToken: false,
+              persistSession: false,
+            },
+          }
         );
-        await supabase
+        
+        // Wait a brief moment for the row to be created by the adapter if needed
+        // though createUser event usually runs after insertion
+        const { error } = await supabaseAdmin
           .from("users")
           .update({ username, is_accepting_messages: true })
           .eq("id", user.id);
-        cookieStore.delete("audiox-new-username");
+          
+        if (error) {
+            console.error("Failed to set username:", error);
+        } else {
+            console.log(`Username set to ${username} for user ${user.id}`);
+            cookieStore.delete("audiox-new-username");
+        }
+      } else {
+          console.error("No username cookie found/expired during user creation");
       }
     },
   },
   debug: false,
-  cookies: {
-    sessionToken: {
-      name: `authjs.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-      },
-    },
-    callbackUrl: {
-      name: `authjs.callback-url`,
-      options: {
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-      },
-    },
-    csrfToken: {
-      name: `authjs.csrf-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-      },
-    },
-    pkceCodeVerifier: {
-      name: `authjs.pkce.code_verifier`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-      },
-    },
-  },
 })

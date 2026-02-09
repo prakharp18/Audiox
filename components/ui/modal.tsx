@@ -24,7 +24,6 @@ export function Modal({
   footer,
   width = "md",
 }: ModalProps) {
-  // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -74,9 +73,9 @@ export function Modal({
                     {title}
                   </h2>
                   {description && (
-                    <p className="text-xs text-zinc-400">
-                      {description}
-                    </p>
+                      <p className="text-sm text-zinc-400 mt-1">
+                        {description}
+                      </p>
                   )}
                 </div>
                 <button
@@ -87,9 +86,11 @@ export function Modal({
                 </button>
               </div>
 
-              <div className="p-6">
-                {children}
-              </div>
+              {children && (
+                <div className="p-6 pt-0">
+                  {children}
+                </div>
+              )}
 
               {footer && (
                 <div className="flex items-center justify-end gap-3 p-6 bg-zinc-900/30 border-t border-zinc-800/50">

@@ -11,6 +11,10 @@ export const metadata: Metadata = {
   title: "Audiox | Anonymous Voice Messages",
   description:
     "Share what you can't say freely. Anonymous, encrypted, and voice-only.",
+  icons: {
+    icon: "/sound-waves.png",
+    apple: "/sound-waves.png",
+  },
 };
 export default function RootLayout({
   children,

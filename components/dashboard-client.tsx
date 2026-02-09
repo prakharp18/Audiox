@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { signOut } from "next-auth/react";
 import { VoicePlayer } from "@/components/voice-player";
@@ -11,6 +11,7 @@ import {
   RefreshIcon,
   Delete02Icon,
   Message01Icon,
+  Edit02Icon,
 } from "hugeicons-react";
 import { cn } from "@/lib/utils";
 import {
@@ -20,6 +21,7 @@ import {
   deleteMessage,
   deleteAllMessages,
 } from "@/app/actions/dashboard";
+import { updateUsername, checkUsernameAvailability } from "@/app/actions/user";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/modal";
@@ -54,6 +56,11 @@ export function DashboardClient({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
   const [isClearFeedModalOpen, setIsClearFeedModalOpen] = useState(false);
+  const [isEditUsernameModalOpen, setIsEditUsernameModalOpen] = useState(false);
+  const [isUpdatingUsername, setIsUpdatingUsername] = useState(false);
+  const [usernameInput, setUsernameInput] = useState(initialUsername);
+  const [usernameStatus, setUsernameStatus] = useState<{ checking: boolean; available: boolean | null; error?: string }>({ checking: false, available: null });
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setIsOnline(acceptMessages);
@@ -170,6 +177,51 @@ export function DashboardClient({
     }
   };
 
+  const handleUpdateUsername = async (formData: FormData) => {
+    setIsUpdatingUsername(true);
+    try {
+        const newUsername = formData.get("newUsername") as string;
+        if (newUsername === username) {
+            setIsEditUsernameModalOpen(false);
+            return;
+        }
+        
+        const result = await updateUsername(newUsername);
+        if (result.error) {
+            toast.error(result.error);
+        } else {
+            toast.success("Username updated successfully!");
+            setIsEditUsernameModalOpen(false);
+            window.location.reload(); 
+        }
+    } catch (error) {
+        toast.error("Failed to update username");
+    } finally {
+        setIsUpdatingUsername(false);
+    }
+  };
+
+  const handleUsernameInputChange = (value: string) => {
+    setUsernameInput(value);
+    setUsernameStatus({ checking: true, available: null });
+    
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    
+    if (value.length < 3) {
+      setUsernameStatus({ checking: false, available: null, error: value.length > 0 ? "Too short" : undefined });
+      return;
+    }
+    
+    debounceRef.current = setTimeout(async () => {
+      const result = await checkUsernameAvailability(value);
+      setUsernameStatus({ 
+        checking: false, 
+        available: result.available, 
+        error: result.error 
+      });
+    }, 500);
+  };
+
   const handleSignOut = () => {
     signOut({ callbackUrl: "/login" });
   };
@@ -209,7 +261,16 @@ export function DashboardClient({
             <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">
               Welcome back,
             </p>
-            <h1 className="text-2xl font-bold tracking-tight">{username}</h1>
+            <div className="flex items-center gap-2 group">
+              <h1 className="text-2xl font-bold tracking-tight truncate max-w-[200px]">{username}</h1>
+              <button 
+                onClick={() => setIsEditUsernameModalOpen(true)}
+                className="p-2 bg-zinc-800/50 hover:bg-zinc-800 rounded-md text-zinc-400 hover:text-white transition-colors"
+                title="Edit Username"
+              >
+                <Edit02Icon className="w-4 h-4" />
+              </button>
+            </div>
             <div className="flex items-center gap-2 mt-2">
               <span
                 className={cn(
@@ -416,6 +477,72 @@ export function DashboardClient({
           </>
         }
       />
+      <Modal
+        isOpen={isEditUsernameModalOpen}
+        onClose={() => setIsEditUsernameModalOpen(false)}
+        title="Change Username"
+        description="Choose a unique username for your Audiox profile."
+      >
+        <form action={handleUpdateUsername} className="space-y-4">
+            <div className="space-y-2">
+                <div className="relative">
+                  <input
+                      name="newUsername"
+                      value={usernameInput}
+                      onChange={(e) => handleUsernameInputChange(e.target.value)}
+                      placeholder="Enter new username"
+                      className={cn(
+                        "w-full bg-zinc-900 border rounded-lg px-3 py-2 text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-all font-mono text-sm pr-10",
+                        usernameStatus.available === true && "border-green-500 focus:ring-green-500/20",
+                        usernameStatus.available === false && "border-red-500 focus:ring-red-500/20",
+                        usernameStatus.available === null && "border-zinc-800 focus:ring-white/20"
+                      )}
+                      required
+                      minLength={3}
+                      maxLength={15}
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    {usernameStatus.checking && (
+                      <div className="w-4 h-4 border-2 border-zinc-500 border-t-transparent rounded-full animate-spin" />
+                    )}
+                    {!usernameStatus.checking && usernameStatus.available === true && (
+                      <span className="text-green-500 text-sm">✓</span>
+                    )}
+                    {!usernameStatus.checking && usernameStatus.available === false && (
+                      <span className="text-red-500 text-sm">✗</span>
+                    )}
+                  </div>
+                </div>
+                {usernameStatus.error && (
+                  <p className="text-xs text-red-500">{usernameStatus.error}</p>
+                )}
+                {usernameStatus.available === true && !usernameStatus.checking && (
+                  <p className="text-xs text-green-500">Username is available!</p>
+                )}
+                <ul className="text-[10px] text-zinc-500 space-y-1 list-disc list-inside">
+                    <li>3-15 characters long</li>
+                    <li>Letters, numbers, and underscores only</li>
+                    <li>No spaces allowed</li>
+                </ul>
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+                <button
+                    type="button"
+                    onClick={() => setIsEditUsernameModalOpen(false)}
+                    className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    disabled={isUpdatingUsername || usernameStatus.available === false || usernameStatus.checking}
+                    className="px-4 py-2 text-sm font-bold bg-white text-black rounded-lg hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {isUpdatingUsername ? "Saving..." : "Save Changes"}
+                </button>
+            </div>
+        </form>
+      </Modal>
     </>
   );
 }
