@@ -106,7 +106,7 @@ export function DashboardClient({
   }, []);
 
   const handleCopyLink = async () => {
-    const link = `https://audiox.vercel.app/message/${username}`;
+    const link = `https://audiox-omega.vercel.app/u/${username}`;
     await navigator.clipboard.writeText(link);
     setCopied(true);
     toast.success("Link copied to clipboard");
@@ -342,7 +342,7 @@ export function DashboardClient({
               </p>
               <div className="flex items-center gap-2 p-3 rounded-xl bg-zinc-950 border border-zinc-800">
                 <span className="text-xs text-zinc-400 truncate flex-1">
-                  https://audiox.vercel.app/message/{username}
+                  https://audiox-omega.vercel.app/u/{username}
                 </span>
                 <button
                   onClick={handleCopyLink}

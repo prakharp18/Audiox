@@ -83,7 +83,7 @@ export function PublicProfileClient({
       <div className="fixed inset-0 z-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-900/20 via-black to-black pointer-events-none" />
 
       <div className="absolute top-6 right-6 z-50 flex items-center gap-4">
-        <Link href="http://vox-omega.vercel.app/">
+        <Link href="https://audiox-omega.vercel.app/">
           <Button variant="outline" size="sm" className="rounded-full backdrop-blur-md">
             Join Audiox
           </Button>
@@ -138,7 +138,7 @@ export function PublicProfileClient({
                                 : `@${username} is currently not accepting new messages.`
                             }
                         </p>
-                        <a href="http://vox-omega.vercel.app/">
+                        <a href="https://audiox-omega.vercel.app/">
                             <Button className="w-full font-bold">
                                 Create Your Own Board
                             </Button>
