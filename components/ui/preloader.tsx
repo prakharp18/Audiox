@@ -1,1 +1,81 @@
-"use client";import { useEffect, useState } from "react";import { motion, AnimatePresence } from "framer-motion";export const Preloader = () => {  const [dimension, setDimension] = useState({ width: 0, height: 0 });  useEffect(() => {    setDimension({ width: window.innerWidth, height: window.innerHeight });  }, []);  const [isVisible, setIsVisible] = useState(true);  useEffect(() => {    const timer = setTimeout(() => {      setIsVisible(false);    }, 2000);    return () => clearTimeout(timer);  }, []);  const initial = {    top: 0,  };  const exit = {    top: "-100vh",    transition: {      duration: 0.8,      ease: [0.76, 0, 0.24, 1],      delay: 0.2,    },  };  return (    <AnimatePresence mode="wait">        {isVisible && (            <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none">                <motion.div                    variants={slideUp}                    initial="initial"                    exit="exit"                    className="absolute z-10 w-full h-full bg-black"                >                    <motion.div                         initial={{ opacity: 0 }}                        animate={{ opacity: 1 }}                        exit={{ opacity: 0 }}                        transition={{ duration: 0.5, delay: 0.2 }}                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 text-white"                    >                         <div className="w-4 h-4 rounded-full bg-primary animate-pulse" />                        <span className="text-2xl font-bold tracking-tighter font-heading">AUDIOX</span>                    </motion.div>                </motion.div>                {[...Array(5)].map((_, i) => {                    return (                        <motion.div                            key={i}                            variants={stairVariants}                            initial="initial"                            exit="exit"                            custom={i}                            className="relative h-full w-[20vw] bg-zinc-950 z-20 border-l border-zinc-900/50"                        />                    );                })}            </div>        )}    </AnimatePresence>  );};const slideUp = {    initial: {        top: 0    },    exit: {        top: "-100vh",        transition: {duration: 0.8, ease: [0.76, 0, 0.24, 1], delay: 0.2}    }}const stairVariants = {    initial: {        top: 0    },    exit: (i: number) => ({        top: "-100vh",        transition: {            duration: 0.8,            ease: [0.76, 0, 0.24, 1],            delay: 0.05 * i        }    })}
+"use client";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence, Variants } from "framer-motion";
+
+export const Preloader = () => {
+  const [dimension, setDimension] = useState({ width: 0, height: 0 });
+  useEffect(() => {
+    setDimension({ width: window.innerWidth, height: window.innerHeight });
+  }, []);
+  const [isVisible, setIsVisible] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <AnimatePresence mode="wait">
+      {isVisible && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none">
+          <motion.div
+            variants={slideUp}
+            initial="initial"
+            exit="exit"
+            className="absolute z-10 w-full h-full bg-black"
+          >
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 text-white"
+            >
+              <div className="w-4 h-4 rounded-full bg-primary animate-pulse" />
+              <span className="text-2xl font-bold tracking-tighter font-heading">
+                AUDIOX
+              </span>
+            </motion.div>
+          </motion.div>
+          {[...Array(5)].map((_, i) => {
+            return (
+              <motion.div
+                key={i}
+                variants={stairVariants}
+                initial="initial"
+                exit="exit"
+                custom={i}
+                className="relative h-full w-[20vw] bg-zinc-950 z-20 border-l border-zinc-900/50"
+              />
+            );
+          })}
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+const slideUp: Variants = {
+  initial: {
+    top: 0,
+  },
+  exit: {
+    top: "-100vh",
+    transition: { duration: 0.8, ease: [0.76, 0, 0.24, 1] as const, delay: 0.2 },
+  },
+};
+
+const stairVariants: Variants = {
+  initial: {
+    top: 0,
+  },
+  exit: (i: number) => ({
+    top: "-100vh",
+    transition: {
+      duration: 0.8,
+      ease: [0.76, 0, 0.24, 1] as const,
+      delay: 0.05 * i,
+    },
+  }),
+};
