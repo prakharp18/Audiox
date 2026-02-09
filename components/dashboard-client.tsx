@@ -255,8 +255,8 @@ export function DashboardClient({
           <RefreshIcon className="w-4 h-4" />
         </button>
       </div>
-      <div className="relative z-10 flex min-h-screen">
-        <div className="w-80 border-r border-zinc-900 p-6 flex flex-col gap-6">
+      <div className="relative z-10 flex flex-col lg:flex-row min-h-screen">
+        <div className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-zinc-900 p-4 lg:p-6 flex flex-col gap-4 lg:gap-6">
           <div className="p-5 rounded-2xl bg-zinc-900/50 border border-zinc-800">
             <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">
               Welcome back,
@@ -393,7 +393,7 @@ export function DashboardClient({
             </button>
           </div>
         </div>
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-4 lg:p-6 overflow-y-auto">
           <header className="mb-6">
             <h2 className="text-[10px] text-zinc-500 uppercase tracking-widest">
               Incoming Feed
