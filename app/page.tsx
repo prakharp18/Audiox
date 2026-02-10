@@ -19,7 +19,7 @@ export default function Home() {
         onMouseEnter={() => setIsLogoHovered(true)}
         onMouseLeave={() => setIsLogoHovered(false)}
       >
-        <Link href="https://audiox-omega.vercel.app/" target="_blank">
+        <Link href="https://vox-omega.vercel.app/" target="_blank">
           <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-2xl bg-white/80 border border-zinc-200 backdrop-blur-md cursor-pointer hover:bg-white hover:border-zinc-300 transition-all duration-300 shadow-sm">
               <div className="relative flex items-center justify-center">
                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
