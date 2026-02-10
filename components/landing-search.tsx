@@ -31,7 +31,7 @@ export const LandingSearch = () => {
       onSubmit={handleSearch}
       className={cn(
         "relative flex items-center w-full sm:max-w-xs transition-all duration-300",
-        isFocused ? "scale-105" : "scale-100"
+        isFocused ? "sm:scale-105" : "scale-100"
       )}
     >
       <div
@@ -53,12 +53,12 @@ export const LandingSearch = () => {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          className="w-full h-14 pl-6 pr-12 text-zinc-900 placeholder:text-zinc-400 bg-transparent outline-none text-sm font-medium"
+          className="w-full h-12 sm:h-14 pl-5 sm:pl-6 pr-12 text-zinc-900 placeholder:text-zinc-400 bg-transparent outline-none text-sm font-medium"
         />
         <button
           type="submit"
           disabled={!query.trim()}
-          className="absolute right-1 p-3 rounded-full bg-zinc-900 text-white hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+          className="absolute right-1 p-2.5 sm:p-3 rounded-full bg-zinc-900 text-white hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
         >
           {query.trim() ? (
             <ArrowRight01Icon className="w-4 h-4" />
