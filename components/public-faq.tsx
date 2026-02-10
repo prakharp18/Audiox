@@ -55,11 +55,6 @@ export const PublicFAQ = () => {
           trigger="Is there a limit?" 
           content="Yes, to prevent spam, you can send 3 messages per user per day. Quality over quantity." 
         />
-        <FAQItem
-          value="item-5"
-          trigger="Want to send more anonymous messages?"
-          content="We currently allow only 3 messages per user per day. For unlimited anonymous messaging and enhanced privacy, switch to Vox."
-        />
         <FAQItem 
           value="item-6" 
           trigger="When does the daily limit reset?" 
