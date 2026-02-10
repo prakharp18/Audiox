@@ -211,7 +211,7 @@ export function PublicProfileClient({
 
             {/* Vox Link */}
             <a
-              href="https://audiox-omega.vercel.app/"
+              href="https://vox-omega.vercel.app/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-col items-start justify-center group shrink-0"
