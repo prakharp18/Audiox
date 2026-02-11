@@ -62,13 +62,13 @@ export async function sendMessage(formData: FormData) {
   }
 
   const publicSupabase = createClient(supabaseUrl, supabaseServiceKey);
-  const fileName = `${recipientId}/${Date.now()}.mp3`;
+  const fileName = `${recipientId}/${Date.now()}.webm`;
   const fileBuffer = await audioFile.arrayBuffer();
 
   const { error: uploadError } = await publicSupabase.storage
     .from("audio-messages")
     .upload(fileName, fileBuffer, {
-      contentType: "audio/mpeg",
+      contentType: audioFile.type,
       upsert: false,
     });
 
