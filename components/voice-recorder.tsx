@@ -6,6 +6,7 @@ import { Mic01Icon, StopIcon, Delete02Icon, SentIcon } from "hugeicons-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { sendMessage } from "@/app/actions/public";
+import { convertWebmToMp3 } from "@/lib/convert-to-mp3";
 
 interface VoiceRecorderProps {
   recipientId: string;
@@ -85,10 +86,12 @@ export const VoiceRecorder = ({ recipientId, onSent }: VoiceRecorderProps) => {
     setIsSending(true);
 
     try {
+        const mp3Blob = await convertWebmToMp3(audioBlob);
+
         const formData = new FormData();
         formData.append("recipientId", recipientId);
         formData.append("duration", recordingTime.toString());
-        formData.append("audio", audioBlob, "message.webm");
+        formData.append("audio", mp3Blob, "message.mp3");
 
         const result = await sendMessage(formData);
 
@@ -195,7 +198,7 @@ export const VoiceRecorder = ({ recipientId, onSent }: VoiceRecorderProps) => {
       {isSending && (
         <div className="flex items-center gap-2 py-4 text-zinc-500">
             <div className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-pulse" />
-            <span className="text-xs font-mono uppercase tracking-widest">Encrypting & Uploading...</span>
+            <span className="text-xs font-mono uppercase tracking-widest">Converting & Uploading...</span>
         </div>
       )}
     </div>
