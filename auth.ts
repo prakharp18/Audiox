@@ -40,6 +40,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.SUPABASE_SERVICE_ROLE_KEY!,
             {
+              db: { schema: "next_auth" },
               auth: {
                 autoRefreshToken: false,
                 persistSession: false,
@@ -90,7 +91,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (token.sub) {
              const supabase = createClient(
                 process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                process.env.SUPABASE_SERVICE_ROLE_KEY!
+                process.env.SUPABASE_SERVICE_ROLE_KEY!,
+                { db: { schema: "next_auth" } }
               );
               const { data } = await supabase
                 .from("users")
@@ -118,6 +120,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
           process.env.SUPABASE_SERVICE_ROLE_KEY!,
           {
+            db: { schema: "next_auth" },
             auth: {
               autoRefreshToken: false,
               persistSession: false,

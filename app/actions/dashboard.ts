@@ -60,9 +60,7 @@ export async function getMessages() {
   const session = await auth();
   if (!session?.user?.id) return [];
   
-  const publicSupabase = createClient(supabaseUrl, supabaseServiceKey);
-  
-  const { data: messages, error } = await publicSupabase
+  const { data: messages, error } = await supabase
     .from("messages")
     .select("*")
     .eq("recipient_id", session.user.id)
@@ -98,9 +96,7 @@ export async function deleteMessage(messageId: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
   
-  const publicSupabase = createClient(supabaseUrl, supabaseServiceKey);
-  
-  const { error } = await publicSupabase
+  const { error } = await supabase
     .from("messages")
     .delete()
     .eq("id", messageId)
@@ -114,9 +110,7 @@ export async function deleteAllMessages() {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
   
-  const publicSupabase = createClient(supabaseUrl, supabaseServiceKey);
-  
-  const { error } = await publicSupabase
+  const { error } = await supabase
     .from("messages")
     .delete()
     .eq("recipient_id", session.user.id);

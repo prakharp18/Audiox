@@ -90,7 +90,7 @@ export async function sendMessage(formData: FormData) {
     throw new Error(finalValidation.error.issues[0].message);
   }
 
-  const { error: insertError } = await publicSupabase.from("messages").insert({
+  const { error: insertError } = await supabase.from("messages").insert({
     recipient_id: recipientId,
     audio_url: publicUrl,
     duration: duration,
@@ -114,8 +114,7 @@ export async function sendMessage(formData: FormData) {
 
 export async function checkSystemStatus() {
   try {
-    const publicSupabase = createClient(supabaseUrl, supabaseServiceKey);
-    const { error } = await publicSupabase.from("users").select("id").limit(1);
+    const { error } = await supabase.from("users").select("id").limit(1);
     
     if (error) throw error;
     return { status: "online", latency: "normal" };
