@@ -60,7 +60,6 @@ export async function getMessages() {
   const session = await auth();
   if (!session?.user?.id) return [];
   
-  // Messages are in 'public' schema, so we need a client pointing there or specify schema in query
   const publicSupabase = createClient(supabaseUrl, supabaseServiceKey);
   
   const { data: messages, error } = await publicSupabase
@@ -77,7 +76,7 @@ export async function getMessages() {
     id: msg.id,
     url: msg.audio_url,
     duration: msg.duration,
-    timestamp: new Date(msg.created_at).toLocaleString(),
+    createdAt: msg.created_at,
     is_read: msg.is_read
   }));
 }

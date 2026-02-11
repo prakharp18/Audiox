@@ -30,7 +30,7 @@ interface Message {
   id: string;
   url: string;
   duration: number;
-  timestamp: string;
+  createdAt: string;
 }
 
 interface DashboardClientProps {
@@ -227,10 +227,12 @@ export function DashboardClient({
   };
 
   const totalMessages = messages.length;
-  // Simple check for "Today" in timestamp matching
-  const newMessages = messages.filter(
-    (m) => m.timestamp && m.timestamp.includes("Today")
-  ).length;
+  const newMessages = messages.filter((m) => {
+    if (!m.createdAt) return false;
+    const msgDate = new Date(m.createdAt).getTime();
+    const twentyFourHoursAgo = Date.now() - 24 * 60 * 60 * 1000;
+    return msgDate > twentyFourHoursAgo;
+  }).length;
 
   return (
     <>
@@ -424,7 +426,7 @@ export function DashboardClient({
                   key={msg.id}
                   url={msg.url}
                   duration={msg.duration}
-                  timestamp={msg.timestamp}
+                  createdAt={msg.createdAt}
                   onDelete={() => handleDeleteMessage(msg.id)}
                 />
               ))}
